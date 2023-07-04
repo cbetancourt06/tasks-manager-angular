@@ -1,0 +1,163 @@
+<div class="container">
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <h1 class="text-primary text-center">{{title}}</h1>
+      <h4>Task list</h4>
+      <button class="btn btn-primary" (click)="open(mymodal)">Add new task</button>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">Task ID</th>
+            <th scope="col">Title</th>
+            <th scope="col">Description</th>
+            <th scope="col">Due date</th>
+            <th scope="col">Status</th>
+            <th scope="col">-</th>
+            <th scope="col">-</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let task of tasksList; index as i">
+            <th scope="row" >
+              <a href="#" (click)="getTask(task.id)">{{ task.id }}</a> 
+            </th>
+            <th>{{ task.title }}</th>
+            <td>{{ task.description }}</td>
+            <td>{{ task.dueDate | date }}</td>
+            <td>{{ statusArray[task.status - 1] }}</td>
+            <td class="text-warning">
+              <a href="#" (click)="getUpdateTask(task.id)">Update</a></td>
+            <td class="text-danger">
+              <a href="#" (click)="getDeleteTask(task.id)">Delete</a></td>
+          </tr>
+          
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ng templates -->
+
+<!-- Create modal -->
+<ng-template #mymodal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Add New Task</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">×</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="createForm">      
+      <div class="form-group">
+        <label for="title">Title</label>
+        <input formControlName="title" [(ngModel)]="taskTitle" type="text" class="form-control" id="title" placeholder="Title of task">
+      </div>
+      <div class="form-group">
+        <label for="description">Description</label>
+        <input formControlName="description" [(ngModel)]="description" type="text" class="form-control" id="description" placeholder="Task Description">
+      </div>
+      <div class="form-group">
+        <label for="dueDate">Due Date</label>
+        <input formControlName="dueDate" [(ngModel)]="dueDate" type="date" class="form-control" id="dueDate" >
+      </div>
+      <div class="form-group">
+        <label for="status">Status</label>
+        <select [(ngModel)]="status" name="status" id="status" class="form-control">
+          <option *ngFor="let status of statusArray; index as j" value="{{ j + 1 }}">
+            {{ statusArray[j] }}</option>
+        </select>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="submit" class="btn btn-primary" (click)="createTask();">Submit</button>
+    <button type="button" class="btn btn-outline-dark" (click)="modal.close('Cancel click')">Close</button>
+  </div>
+</ng-template>
+
+<!-- Update modal -->
+<ng-template #updmodal let-updmodal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Update Task <strong>{{selectedTask.id}}</strong></h4>
+    <button type="button" class="close" aria-label="Close" (click)="updmodal.dismiss('Cross click')">
+      <span aria-hidden="true">×</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="createForm">
+      <div class="form-group">
+        <label for="title">Title</label>
+        <input formControlName="title" [(ngModel)]="taskTitle" type="text" class="form-control" id="title" placeholder="Title of task">
+      </div>
+      <div class="form-group">
+        <label for="description">Description</label>
+        <input formControlName="description" [(ngModel)]="description" type="text" class="form-control" id="description" placeholder="Task Description">
+      </div>
+      <div class="form-group">
+        <label for="dueDate">Due Date</label>
+        <input formControlName="dueDate" [(ngModel)]="dueDate" type="date" class="form-control" id="dueDate" placeholder="Password">
+      </div>
+      <div class="form-group">
+        <label for="status">Status</label>
+        <select formControlName="status" [(ngModel)]="status" name="status" id="status" class="form-control">
+          <option *ngFor="let status of statusArray; index as j" [value]="j + 1">{{ statusArray[j] }}</option>
+        </select>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="submit" class="btn btn-primary" (click)="postUpdateTask();">Submit</button>
+    <button type="button" class="btn btn-outline-dark" (click)="updmodal.close('Cancel click')">Close</button>
+  </div>
+</ng-template>
+
+<!-- Detail modal -->
+<ng-template #detmodal let-detmodal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Task Detail</h4>
+    <button type="button" class="close" aria-label="Close" (click)="detmodal.dismiss('Cross click')">
+      <span aria-hidden="true">×</span>
+    </button>
+  </div>
+  <div class="modal-body text-center">
+    <div class="row" *ngIf="selectedTask; else noRecords">
+      <div class="col-md-12 text-center">
+        <p><b>Task number:</b> {{selectedTask.taskNumber}}</p>
+        <p><b>Task title:</b> {{selectedTask.title}}</p>
+        <p><b>Description:</b> {{selectedTask.description}}</p>
+      </div>
+      <div class="col-md-12 text-center">
+        <button type="button" class="btn btn-primary" (click)="detmodal.dismiss('Cross click')">
+          OK</button>
+      </div>
+    </div>
+  </div>  
+</ng-template>
+
+<!-- Delete modal -->
+<ng-template #delmodal let-delmodal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Delete Task</h4>
+    <button type="button" class="close" aria-label="Close" (click)="delmodal.dismiss('Cross click')">
+      <span aria-hidden="true">×</span>
+    </button>
+  </div>
+  <div class="modal-body text-center">
+    <div class="row" *ngIf="selectedTask; else noRecords">
+      <div class="col-md-12 text-center">
+        <p><b>Task number:</b> {{selectedTask.taskNumber}}</p>
+        <p><b>Task title:</b> {{selectedTask.title}}</p>
+        <p><b>Description:</b> {{selectedTask.description}}</p>
+      </div>
+      <div class="col-md-12 text-center">
+        <button type="button" class="btn btn-outline-dark" (click)="postDeleteTask(selectedTask.id)">
+          Delete</button>
+      </div>
+    </div>
+  </div>  
+</ng-template>
+
+<ng-template #noRecords>
+  <h1 class="text-danger">No records found</h1>
+</ng-template>
